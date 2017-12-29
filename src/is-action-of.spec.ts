@@ -37,6 +37,11 @@ const $action = [
   mappedPayloadMetaAction,
 ];
 
+  // TODO: #3
+  // should error when missing argument
+  // should error when passed invalid arguments
+  // check object, empty array, primitives
+
 describe('isActionOf', () => {
   it('should work with single action-creator arg', () => {
     expect(isActionOf(withTypeOnly)(typeOnlyAction)).toBeTruthy();
