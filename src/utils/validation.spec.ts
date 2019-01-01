@@ -1,4 +1,6 @@
-import { validateActionType } from './utils';
+import { validateActionType } from './validation';
+
+/** HELPERS */
 
 const expectToThrowError = (cb: () => void, expectedMessage: string) => {
   try {
@@ -17,14 +19,14 @@ const expectNotToThrowError = (cb: () => void) => {
   }
 };
 
+/** TESTS */
+
 describe('utils.validateActionType', () => {
   it('throws an error when no action is given', () =>
-    expectToThrowError(
-      () => validateActionType(null),
-      'Argument (#1) is missing'
-    ));
+    expectToThrowError(() => validateActionType(null), 'Argument 1 is empty'));
 
-  const INVALID_TYPE = 'Argument (#1) should be of type: string | symbol';
+  const INVALID_TYPE =
+    'Argument 1 is invalid, it should be of type: string | symbol';
 
   it('throws an error when number is given as an action type', () =>
     expectToThrowError(() => validateActionType(4), INVALID_TYPE));

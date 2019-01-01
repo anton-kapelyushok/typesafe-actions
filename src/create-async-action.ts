@@ -1,6 +1,6 @@
 import { StringType, Box, FsaMapBuilder, FsaBuilder } from './types';
 import { createActionWithType } from './create-action-with-type';
-import { validateActionType } from './utils/utils';
+import { validateActionType } from './utils/validation';
 
 export interface CreateAsyncAction<
   T1 extends StringType,

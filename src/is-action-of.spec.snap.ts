@@ -9,7 +9,8 @@ const {
   withMappedPayloadMeta,
 } = actions;
 
-/** FIXTURES */
+/** HELPERS */
+
 const typeOnlyAction = withTypeOnly();
 const typeOnlyExpected = { type: 'WITH_TYPE_ONLY' };
 const payloadAction = withPayload(2);
@@ -37,10 +38,11 @@ const $action = [
   mappedPayloadMetaAction,
 ];
 
-  // TODO: #3
-  // should error when missing argument
-  // should error when passed invalid arguments
-  // check object, empty array, primitives
+// TODO: #3
+// should error when missing argument
+// should error when passed invalid arguments like primitives,object, empty array, array with nulls
+
+/** TESTS */
 
 describe('isActionOf', () => {
   it('should work with single action-creator arg', () => {

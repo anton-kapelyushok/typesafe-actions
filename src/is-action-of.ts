@@ -1,4 +1,8 @@
 import { TypeMeta } from './types';
+import {
+  validateEmpty,
+  validateActionCreatorInArray,
+} from './utils/validation';
 
 export type AC<T extends { type: string }> = ((...args: any[]) => T) &
   TypeMeta<T['type']>;
@@ -12,6 +16,7 @@ export function isActionOf<A extends { type: string }, T1 extends A>(
   actionCreators: [AC<T1>],
   action: { type: string }
 ): action is [T1][number];
+
 export function isActionOf<
   A extends { type: string },
   T1 extends A,
@@ -20,6 +25,7 @@ export function isActionOf<
   actionCreators: [AC<T1>, AC<T2>],
   action: { type: string }
 ): action is [T1, T2][number];
+
 export function isActionOf<
   A extends { type: string },
   T1 extends A,
@@ -29,6 +35,7 @@ export function isActionOf<
   actionCreators: [AC<T1>, AC<T2>, AC<T3>],
   action: { type: string }
 ): action is [T1, T2, T3][number];
+
 export function isActionOf<
   A extends { type: string },
   T1 extends A,
@@ -39,6 +46,7 @@ export function isActionOf<
   actionCreators: [AC<T1>, AC<T2>, AC<T3>, AC<T4>],
   action: { type: string }
 ): action is [T1, T2, T3, T4][number];
+
 export function isActionOf<
   A extends { type: string },
   T1 extends A,
@@ -51,10 +59,6 @@ export function isActionOf<
   action: { type: string }
 ): action is [T1, T2, T3, T4, T5][number];
 
-/**
- * @description (curried assert function) check if an action is the instance of given action-creator(s)
- * @description it works with discriminated union types
- */
 export function isActionOf<A extends { type: string }, T1 extends A>(
   actionCreator: AC<T1>,
   action: { type: string }
@@ -63,16 +67,18 @@ export function isActionOf<A extends { type: string }, T1 extends A>(
 /**
  * @description (curried assert function) check if an action is the instance of given action-creator(s)
  * @description it works with discriminated union types
- * @inner If you need more than 5 arguments -> use switch
+ * @inner If you need more than 5 arguments -> use switch case instead of filter
  */
 export function isActionOf<A extends { type: string }, T1 extends A>(
   actionCreators: [AC<T1>]
 ): (action: A) => action is [T1][number];
+
 export function isActionOf<
   A extends { type: string },
   T1 extends A,
   T2 extends A
 >(actionCreators: [AC<T1>, AC<T2>]): (action: A) => action is [T1, T2][number];
+
 export function isActionOf<
   A extends { type: string },
   T1 extends A,
@@ -81,6 +87,7 @@ export function isActionOf<
 >(
   actionCreators: [AC<T1>, AC<T2>, AC<T3>]
 ): (action: A) => action is [T1, T2, T3][number];
+
 export function isActionOf<
   A extends { type: string },
   T1 extends A,
@@ -90,6 +97,7 @@ export function isActionOf<
 >(
   actionCreators: [AC<T1>, AC<T2>, AC<T3>, AC<T4>]
 ): (action: A) => action is [T1, T2, T3, T4][number];
+
 export function isActionOf<
   A extends { type: string },
   T1 extends A,
@@ -101,10 +109,6 @@ export function isActionOf<
   actionCreators: [AC<T1>, AC<T2>, AC<T3>, AC<T4>, AC<T5>]
 ): (action: A) => action is [T1, T2, T3, T4, T5][number];
 
-/**
- * @description (curried assert function) check if an action is the instance of given action-creator(s)
- * @description it works with discriminated union types
- */
 export function isActionOf<A extends { type: string }, T1 extends A>(
   actionCreator: AC<T1>
 ): (action: A) => action is T1;
@@ -118,46 +122,32 @@ export function isActionOf<
   T4 extends A,
   T5 extends A
 >(
-  creatorOrCreators:
+  actionCreatorOrCreators:
     | AC<T1>
     | [AC<T1>]
     | [AC<T1>, AC<T2>]
     | [AC<T1>, AC<T2>, AC<T3>]
     | [AC<T1>, AC<T2>, AC<T3>, AC<T4>]
     | [AC<T1>, AC<T2>, AC<T3>, AC<T4>, AC<T5>],
-  actionOrNil?: A
+  action?: A
 ) {
-  if (creatorOrCreators == null) {
-    throw new Error('first argument is missing');
-  }
+  validateEmpty(actionCreatorOrCreators);
 
-  if (Array.isArray(creatorOrCreators)) {
-    (creatorOrCreators as any[]).forEach((actionCreator, index) => {
-      if (actionCreator.getType == null) {
-        throw new Error(`first argument contains element
-        that is not created with "typesafe-actions" at index [${index}]`);
-      }
-    });
-  } else {
-    if (creatorOrCreators.getType == null) {
-      throw new Error('first argument is not created with "typesafe-actions"');
-    }
-  }
+  const actionCreators = Array.isArray(actionCreatorOrCreators)
+    ? actionCreatorOrCreators
+    : [actionCreatorOrCreators];
 
-  const assertFn = (action: A): action is [T1, T2, T3, T4, T5][number] => {
-    const actionCreators: any[] = Array.isArray(creatorOrCreators)
-      ? creatorOrCreators
-      : [creatorOrCreators];
+  actionCreators.forEach(validateActionCreatorInArray);
 
-    return actionCreators.some((actionCreator, index) => {
-      return actionCreator.getType() === action.type;
-    });
-  };
+  const assertFn = (_action: A) =>
+    actionCreators.some(
+      actionCreator => _action.type === actionCreator.getType!()
+    );
 
-  // with 1 arg return assertFn
-  if (actionOrNil == null) {
+  // 1 arg case => return curried version
+  if (action === undefined) {
     return assertFn;
   }
-  // with 2 args invoke assertFn and return the result
-  return assertFn(actionOrNil);
+  // 2 args case => invoke assertFn and return the result
+  return assertFn(action);
 }
