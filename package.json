@@ -27,6 +27,7 @@
     "tsc:watch": "tsc -p . --noEmit -w",
     "test": "jest --config jest.config.json",
     "test:watch": "jest --config jest.config.json --watch",
+    "test:update": "jest --config jest.config.json -u",
     "test-types": "jest --config dts-jest.config.json --no-cache",
     "test-types:watch": "jest --config dts-jest.config.json --watch",
     "test-types:update": "jest --config dts-jest.config.json --no-cache -u && dts-jest-remap ./src/*.spec.ts --rename '{{basename}}.snap.{{extname}}'",
@@ -34,7 +35,7 @@
     "build": "tsc -p . && rollup -c",
     "postbuild": "rm -rf out",
     "prepublishOnly": "npm run reinstall && npm run ci-check && npm run build",
-    "ci-check": "npm run lint && (npm run tsc & npm run test & npm run test-types:update)"
+    "ci-check": "npm run lint && npm run tsc && npm run test:update && npm run test-types:update"
   },
   "dependencies": {},
   "optionalDependencies": {
